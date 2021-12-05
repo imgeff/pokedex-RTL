@@ -1,8 +1,9 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
-// import userEvent from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 import RenderWithRouter from '../RenderWithRouter';
 import PokemonDetails from '../components/PokemonDetails';
+import App from '../App';
 import pokemons from '../data';
 
 const isPokemonFavoriteById = {
@@ -193,17 +194,16 @@ describe('Teste se o usuário pode favoritar um pokémon através da página de 
     test(`Cliques alternados no checkbox devem adicionar e remover respectivamente
       o Pokémon da lista de favoritos`,
     () => {
-      const snorlax = pokemons[7];
-
-      RenderWithRouter(
-        <PokemonDetails
-          isPokemonFavoriteById={ isPokemonFavoriteById }
-          match={ matchPokemon(snorlax.id.toString()) }
-          pokemons={ pokemons }
-          onUpdateFavoritePokemons={ (pokemonId, isFavorite) => (
-            this.onUpdateFavoritePokemons(pokemonId, isFavorite)
-          ) }
-        />,
-      );
+      RenderWithRouter(<App />);
+      const linkDetail = screen.getByRole('link', { name: /More details/i });
+      userEvent.click(linkDetail);
+      const checkboxFavorite = screen.getByLabelText('Pokémon favoritado?');
+      userEvent.click(checkboxFavorite);
+      const iconFavorite = screen.getByAltText('Pikachu is marked as favorite');
+      expect(checkboxFavorite.checked).toBe(true);
+      expect(iconFavorite).toBeInTheDocument();
+      userEvent.click(checkboxFavorite);
+      expect(checkboxFavorite.checked).toBe(false);
+      expect(iconFavorite).not.toBeInTheDocument();
     });
   });
